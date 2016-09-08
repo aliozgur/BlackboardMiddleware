@@ -1,0 +1,83 @@
+﻿{
+  "DataRootPath": "C:\\BbData",
+  "QueueFolderName": "Queue",
+  "ProcessedFolderName": "Processed",
+  "ProcessedBackupEnabled": true,
+  "LogFolderName": "Logs",
+  "LogEnabled": true,
+  "UploadBinary": false,
+  "FilePartsSeperator": "_", // Default is _ (underscore)
+  "Username": "",
+  "Password": "password",
+  "DataIntervalInSeconds": 10, // Poll data files every 10 seconds
+  "DataJobEnabled": true, // Default is true
+  "EndpointUrl": "https://xyz.com/webapps/bb-data-integration-flatfile-BBLEARN/endpoint",
+  "DataSetStatusMaxFilesToProcess": 10, // Default is 5
+  "DataSetStatusQueryIntervalInSeconds": 900, // Poll status 15 minutes
+  "DataSetStatusJobEnabled": false, // Default is false
+  "DataSetStatusFolderName": "Status", // Default is Status
+  "DataSetStatusKeepNotOkResponses": true,
+  "DataSetStatusEndpointUrl": "https://xyz.com/webapps/bb-data-integration-flatfile-BBLEARN/endpoint/dataSetStatus/",
+  "Endpoints": [
+    {
+      "Name": "Nodes",
+      "Order": 1,
+      "Username": "7f01e1be-73e3-4a1b-be06-fed0e261a271",
+      "Password": "password",
+      "Url": "/node/store",
+      "FileName": "Nodes.txt",
+      "ProcessedFolderName": "Nodes",
+      "LogFolderName": "Nodes"
+    },
+    {
+      "Name": "Terms",
+      "Order": 2,
+      "Username": "7f01e1be-73e3-4a1b-be06-fed0e261a271",
+      "Password": "password",
+      "Url": "/term/store",
+      "FileName": "Terms.txt",
+      "ProcessedFolderName": "Terms",
+      "LogFolderName": "Terms"
+    },
+    {
+      "Name": "Users",
+      "Order": 3,
+      "Username": "7f01e1be-73e3-4a1b-be06-fed0e261a271",
+      "Password": "password",
+      "Url": "/person/store",
+      "FileName": "Users.txt",
+      "ProcessedFolderName": "Users",
+      "LogFolderName": "Users"
+    },
+    {
+      "Name": "SecondaryInstitutionRole",
+      "Order": 4,
+      "Username": "7f01e1be-73e3-4a1b-be06-fed0e261a271",
+      "Password": "password",
+      "Url": "/secondaryinstrole/store",
+      "FileName": "SecondaryInstitutionRole.txt",
+      "ProcessedFolderName": "SecondaryInstitutionRole",
+      "LogFolderName": "SecondaryInstitutionRole"
+    },
+    {
+      "Name": "Courses",
+      "Order": 5,
+      "Username": "7f01e1be-73e3-4a1b-be06-fed0e261a271",
+      "Password": "password",
+      "Url": "/course/store",
+      "FileName": "Courses.txt",
+      "ProcessedFolderName": "Courses",
+      "LogFolderName": "Courses"
+    },
+    {
+      "Name": "Enrollments",
+      "Order": 6,
+      "Username": "7f01e1be-73e3-4a1b-be06-fed0e261a271",
+      "Password": "password",
+      "Url": "/membership/store",
+      "FileName": "Enrollments.txt",
+      "ProcessedFolderName": "Enrollments",
+      "LogFolderName": "Enrollments"
+    }
+  ]
+}

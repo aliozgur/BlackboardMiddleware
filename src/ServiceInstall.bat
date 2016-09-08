@@ -1,0 +1,1 @@
+Bilgi.Sis.BbMiddleware.exe install --sudo
