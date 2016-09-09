@@ -95,6 +95,7 @@ namespace Bilgi.Sis.BbMiddleware
                 return;
 
                 IJobDetail job = JobBuilder.Create<DataJob>()
+                .WithIdentity("UploadToBb")
                 .UsingJobData("configFilePath", DataConfigFilePath)
                 .Build();
 
@@ -115,6 +116,7 @@ namespace Bilgi.Sis.BbMiddleware
                 return;
 
             IJobDetail job = JobBuilder.Create<DataSetStatusJob>()
+                 .WithIdentity("DataSetStatusJob")
                 .UsingJobData("configFilePath", DataConfigFilePath)
                 .Build();
 
