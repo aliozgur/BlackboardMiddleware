@@ -78,6 +78,7 @@ You should configure a ```config.json``` in the same folders as ```Bilgi.Sis.BbM
 
 | Property | Description | Mandatory |
 | ---      | ---         | ---       |
+| DryRun | Do not uplaod files to Blackboard but run the full cycle | NO |
 | DataIntervalInSeconds | How often will data job trigger. Default is 1 hour (3600 seconds) | YES |
 | DataJobEnabled | If 'true' data job will be triggered every DataIntervalInSeconds, if 'false' data job will not be triggered | YES|
 | DataRootPath | Full path of the root snapshot flat file folder | YES |

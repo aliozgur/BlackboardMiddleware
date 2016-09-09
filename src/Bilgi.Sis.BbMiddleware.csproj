@@ -49,6 +49,10 @@
       <HintPath>packages\FX.Configuration.0.4.1\lib\net45\fx.configuration.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Kentor.Log4NetExtensions.BurstFilter, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\log4net.BurstFilter.1.0.2.0\lib\net45\Kentor.Log4NetExtensions.BurstFilter.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>

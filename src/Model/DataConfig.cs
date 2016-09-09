@@ -10,6 +10,10 @@ namespace Bilgi.Sis.BbMiddleware.Model
 
     public class DataConfig : DataConfigBase
     {
+        public const string InProcessFolderName = "InProcess";
+
+        public bool DryRun { get; set; } = false;
+
         public string DataRootPath { get; set; }
         public string FilePartsSeperator { get; set; } = "_";
         public string EndpointUrl { get; set; }
@@ -29,6 +33,8 @@ namespace Bilgi.Sis.BbMiddleware.Model
 
         [JsonIgnore]
         public string QueueFolderPath => Path.Combine(DataRootPath, QueueFolderName);
+        [JsonIgnore]
+        public string InProcFolderPath => Path.Combine(DataRootPath, QueueFolderName, InProcessFolderName);
         [JsonIgnore]
         public string ProcessedFolderPath => Path.Combine(DataRootPath, ProcessedFolderName);
         [JsonIgnore]

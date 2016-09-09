@@ -52,6 +52,12 @@ namespace Bilgi.Sis.BbMiddleware
 
         private void DoExecute()
         {
+            var movedFiles = MoveQueueFilesToInProc();
+            if (!movedFiles)
+            {
+                _log.Info("WILL REST | Can not move files to in process folder");
+            }
+
             var batchId = GetNextBatchIdInQueue();
             if (String.IsNullOrWhiteSpace(batchId))
             {
@@ -71,18 +77,57 @@ namespace Bilgi.Sis.BbMiddleware
             UploadFiles(queue);
         }
 
+        private bool MoveQueueFilesToInProc()
+        {
+            _log.Info("WILL MOVE FILES to In Process folder");
+            var queueFolderPath = _config.QueueFolderPath;
+            var inProcFolderPath = _config.InProcFolderPath;
+
+            if (!Directory.Exists(queueFolderPath))
+            {
+                _log.Fatal($"Queue directory not found {queueFolderPath}");
+                return false;
+            }
+
+
+            if (!Directory.Exists(inProcFolderPath))
+                Directory.CreateDirectory(inProcFolderPath);
+
+            var queueDirInfo = new DirectoryInfo(queueFolderPath);
+
+
+            _log.Info("Getting files in queue for moving to In Process folder");
+            var files = queueDirInfo.GetFiles();
+            try
+            {
+                _log.Info("START MOVE FILES to In Process folder");
+                foreach (var fi in files)
+                {
+                    _log.Debug($"Moving file to In Process folder : {fi.FullName}");
+                    File.Move(fi.FullName, Path.Combine(inProcFolderPath, fi.Name));
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.Fatal($"Can not move files to in process folder.",ex);
+                return false;
+            }
+
+            return true;
+        }
+
         private string GetNextBatchIdInQueue()
         {
             var partsSeperator = _config.FilePartsSeperator;
             if (String.IsNullOrWhiteSpace(partsSeperator))
                 return String.Empty;
 
-            if (!Directory.Exists(_config.QueueFolderPath))
+            if (!Directory.Exists(_config.InProcFolderPath))
             {
-                _log.Fatal($"Queue directory not found {_config.QueueFolderPath}");
+                _log.Fatal($"Queue In Process directory not found {_config.InProcFolderPath}");
                 return String.Empty;
             }
-            var queueDir = new DirectoryInfo(_config.QueueFolderPath);
+            var queueDir = new DirectoryInfo(_config.InProcFolderPath);
             var firstFile = queueDir
                 .GetFiles()
                 .Where(
@@ -108,10 +153,10 @@ namespace Bilgi.Sis.BbMiddleware
                 return result;
 
             var batchPrefix = $"{batchId}{partsSeperator}".ToLowerInvariant();
-            var queueDirPath = _config.QueueFolderPath;
-            var queueDir = new DirectoryInfo(queueDirPath);
+            var inProcPath = _config.InProcFolderPath;
+            var inProcDir = new DirectoryInfo(inProcPath);
 
-            var filesInBatch = queueDir.GetFiles($"{batchPrefix}*").Select(fi => fi);
+            var filesInBatch = inProcDir.GetFiles($"{batchPrefix}*").Select(fi => fi);
 
             var endpoints = _config.Endpoints.OrderBy(ep => ep.Order).Select(ep => ep).ToList();
             endpoints.ForEach(ep =>
@@ -142,7 +187,10 @@ namespace Bilgi.Sis.BbMiddleware
                 try
                 {
                     _log.Info($"PROCESS FILE {dataFile.Endpoint.Name}: {dataFile.FilePath}");
-                    var uploadResult = UploadFile(dataFile);
+                    var uploadResult = _config.DryRun 
+                        ? DryRunUpload (dataFile) 
+                        : UploadFile(dataFile);
+
                     if (uploadResult.StatusCode != HttpStatusCode.OK)
                     {
 
@@ -166,6 +214,7 @@ namespace Bilgi.Sis.BbMiddleware
             using (var client = new HttpClient())
             {
 
+
                 var username = dataFile.Endpoint.Username;
                 var password = dataFile.Endpoint.Password;
                 var url = dataFile.Endpoint.Url;
@@ -180,10 +229,6 @@ namespace Bilgi.Sis.BbMiddleware
                 {
                     var utf8 = new UTF8Encoding(true);
                     var fileContent = File.ReadAllText(dataFile.FilePath, utf8);
-                    //if (!Directory.Exists("C:\\tmp")) ;
-                    //    Directory.CreateDirectory("C:\\tmp");
-
-                    //File.WriteAllText(Path.Combine("C:\\tmp", dataFile.FileName),fileContent,utf8);
                     request.Content = new StringContent(fileContent, utf8, "text/plain");
 
                 }
@@ -204,9 +249,28 @@ namespace Bilgi.Sis.BbMiddleware
                     FileName = dataFile.FileName
                 };
 
-                _log.Info($"Post data set http result[{result.StatusCode}] : {result.Url}");
+                _log.Info($"Post data set http result [{result.StatusCode}] : {result.Url}");
                 return result;
             }
+        }
+
+        public DataFileHttpResult DryRunUpload(DataFile dataFile)
+        {
+            var url = dataFile.Endpoint.Url;
+            var uri = new Uri(url);
+
+            var result = new DataFileHttpResult
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = "Dry run upload content. No files uploaded to Blackboard",
+                Url = uri,
+                Endpoint = dataFile.Endpoint,
+                FilePath = dataFile.FilePath,
+                FileName = dataFile.FileName
+            };
+
+            _log.Info($"Dry run upload : {url}");
+            return result;
         }
 
         private void PostProcessUploadedFile(DataFileHttpResult uploadResult)
