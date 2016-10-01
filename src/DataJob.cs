@@ -12,6 +12,7 @@ using Common.Logging;
 using Quartz;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Bilgi.Sis.BbMiddleware
 {
@@ -21,13 +22,27 @@ namespace Bilgi.Sis.BbMiddleware
     {
         private readonly ILog _log = LogManager.GetLogger(typeof(DataJob));
         private DataConfig _config;
+        private volatile int _isRunning;
 
         public void Execute(IJobExecutionContext context)
         {
             if (!LoadConfig(context))
                 return;
 
-            DoExecute();
+            if (Interlocked.Exchange(ref _isRunning, 1) == 1)
+            {
+                _log.Info("[UPLOAD DATA] SOMEONE ELSE IS IN! I'm just leaving the data upload...");
+                return;
+            }
+
+            try
+            {
+                DoExecute();
+            }
+            finally
+            {
+                _isRunning = 0;
+            }
         }
 
         private bool LoadConfig(IJobExecutionContext context)

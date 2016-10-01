@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Bilgi.Sis.BbMiddleware.Model;
@@ -20,13 +21,29 @@ namespace Bilgi.Sis.BbMiddleware
         private readonly ILog _log = LogManager.GetLogger(typeof(DataSetStatusJob));
         private DataConfig _config;
         private int _maxFilesToProcess = 5;
+        private volatile int _isRunning;
+
 
         public void Execute(IJobExecutionContext context)
         {
             if (!LoadConfig(context))
                 return;
 
-            DoExecute();
+            if (Interlocked.Exchange(ref _isRunning, 1) == 1)
+            {
+                _log.Info("[DATASET STATUS CHECK] SOMEONE ELSE IS IN! I'm just leaving the data status check...");
+                return;
+            }
+
+            try
+            {
+                DoExecute();
+            }
+            finally
+            {
+                _isRunning = 0;
+            }
+
         }
 
         private bool LoadConfig(IJobExecutionContext context)

@@ -19,7 +19,10 @@ namespace Bilgi.Sis.BbMiddleware
         private DataConfig _dataConfig;
 
         private int _dataProcessInterval = 60 * 60; //  1 hour
+        private string _dataProcessCron;
+
         private int _logProcessInterval = (60 * 60) + (60 * 90); // 1.5 hours
+        private string _logProcessCron;
 
         private string DataConfigFilePath => Path.Combine(Environment.CurrentDirectory, "config.json");
 
@@ -33,8 +36,15 @@ namespace Bilgi.Sis.BbMiddleware
             if (_dataConfig.DataIntervalInSeconds > 0)
                 _dataProcessInterval = _dataConfig.DataIntervalInSeconds;
 
+            if (!String.IsNullOrWhiteSpace(_dataConfig.DataCronExp))
+                _dataProcessCron = _dataConfig.DataCronExp;
+
             if (_dataConfig.DataSetStatusQueryIntervalInSeconds > 0)
                 _logProcessInterval = _dataConfig.DataSetStatusQueryIntervalInSeconds;
+
+            if (!String.IsNullOrWhiteSpace(_dataConfig.DataSetStatusCronExp))
+                _logProcessCron = _dataConfig.DataSetStatusCronExp;
+
 
         }
 
@@ -88,26 +98,43 @@ namespace Bilgi.Sis.BbMiddleware
 
             _scheduler.Start();
         }
-
         private void PrepareDataJob()
         {
+
             if (!_dataConfig.DataJobEnabled)
                 return;
 
-                IJobDetail job = JobBuilder.Create<DataJob>()
-                .WithIdentity("UploadToBb")
-                .UsingJobData("configFilePath", DataConfigFilePath)
-                .Build();
+            var jobKey = new JobKey("UploadToBb", "DataUplaodGroup");
+
+            IJobDetail job = JobBuilder.Create<DataJob>()
+            .WithIdentity(jobKey)
+            .UsingJobData("configFilePath", DataConfigFilePath)
+            .Build();
 
 
-            ITrigger trigger = TriggerBuilder.Create()
-                .StartNow()
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(_dataProcessInterval)
-                    .RepeatForever())
-                .Build();
+            ITrigger trigger = null;
+
+            if (!String.IsNullOrWhiteSpace(_dataProcessCron))
+            {
+                trigger = TriggerBuilder.Create()
+                    .WithSchedule(
+                        CronScheduleBuilder.CronSchedule(_dataProcessCron)
+                        .WithMisfireHandlingInstructionIgnoreMisfires()
+                    ).Build();
+            }
+            else
+            {
+                trigger = TriggerBuilder.Create()
+                    .StartNow()
+                    .WithSimpleSchedule(x => x
+                        .WithIntervalInSeconds(_dataProcessInterval)
+                        .WithMisfireHandlingInstructionIgnoreMisfires()
+                        .RepeatForever()
+                    ).Build();
+            }
 
             _scheduler.ScheduleJob(job, trigger);
+            _scheduler.TriggerJob(jobKey);
         }
 
         private void PrepareDataSetStatusJob()
@@ -115,22 +142,38 @@ namespace Bilgi.Sis.BbMiddleware
             if (!_dataConfig.DataSetStatusJobEnabled)
                 return;
 
+            var jobKey = new JobKey("DataSetStatusJob", "StatusCheckGroup");
+
             IJobDetail job = JobBuilder.Create<DataSetStatusJob>()
-                 .WithIdentity("DataSetStatusJob")
+                .WithIdentity(jobKey)
                 .UsingJobData("configFilePath", DataConfigFilePath)
                 .Build();
 
+            ITrigger trigger = null;
 
-            ITrigger trigger = TriggerBuilder.Create()
-                .StartNow()
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(_logProcessInterval)
-                    .RepeatForever())
-                .Build();
+            if (!String.IsNullOrWhiteSpace(_logProcessCron))
+            {
+                trigger = TriggerBuilder.Create()
+                    .WithSchedule(
+                        CronScheduleBuilder.CronSchedule(_logProcessCron)
+                        .WithMisfireHandlingInstructionIgnoreMisfires()
+                    ).Build();
+            }
+            else
+            {
+                trigger = TriggerBuilder.Create()
+                    .StartNow()
+                    .WithSimpleSchedule(x => x
+                        .WithIntervalInSeconds(_logProcessInterval)
+                        .WithMisfireHandlingInstructionIgnoreMisfires()
+                        .RepeatForever())
+                    .Build();
+            }
 
             _scheduler.ScheduleJob(job, trigger);
+            _scheduler.TriggerJob(jobKey);
         }
 
-       
+
     }
 }

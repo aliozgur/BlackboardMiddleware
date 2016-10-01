@@ -18,9 +18,12 @@ namespace Bilgi.Sis.BbMiddleware.Model
         public string FilePartsSeperator { get; set; } = "_";
         public string EndpointUrl { get; set; }
         public int DataIntervalInSeconds { get; set; } = 60*60;
+        public string DataCronExp { get; set; }
+
         public bool DataJobEnabled { get; set; } = true;
         public string DataSetStatusEndpointUrl { get; set; }
         public int DataSetStatusQueryIntervalInSeconds { get; set; } = 90*60;
+        public string DataSetStatusCronExp { get; set; }
         public bool DataSetStatusJobEnabled { get; set; } = false;
         public int DataSetStatusMaxFilesToProcess { get; set; } = 5;
         public string DataSetStatusFolderName { get; set; } = "Status";
