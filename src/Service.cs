@@ -113,7 +113,7 @@ namespace Bilgi.Sis.BbMiddleware
 
 
             ITrigger trigger = null;
-
+            bool explicitTriggerNow = false;
             if (!String.IsNullOrWhiteSpace(_dataProcessCron))
             {
                 trigger = TriggerBuilder.Create()
@@ -121,6 +121,7 @@ namespace Bilgi.Sis.BbMiddleware
                         CronScheduleBuilder.CronSchedule(_dataProcessCron)
                         .WithMisfireHandlingInstructionIgnoreMisfires()
                     ).Build();
+                explicitTriggerNow = true;
             }
             else
             {
@@ -134,7 +135,8 @@ namespace Bilgi.Sis.BbMiddleware
             }
 
             _scheduler.ScheduleJob(job, trigger);
-            _scheduler.TriggerJob(jobKey);
+            if(explicitTriggerNow)
+                _scheduler.TriggerJob(jobKey);
         }
 
         private void PrepareDataSetStatusJob()
@@ -150,6 +152,7 @@ namespace Bilgi.Sis.BbMiddleware
                 .Build();
 
             ITrigger trigger = null;
+            bool explicitTriggerNow = false;
 
             if (!String.IsNullOrWhiteSpace(_logProcessCron))
             {
@@ -158,6 +161,7 @@ namespace Bilgi.Sis.BbMiddleware
                         CronScheduleBuilder.CronSchedule(_logProcessCron)
                         .WithMisfireHandlingInstructionIgnoreMisfires()
                     ).Build();
+                explicitTriggerNow = true;
             }
             else
             {
@@ -171,7 +175,8 @@ namespace Bilgi.Sis.BbMiddleware
             }
 
             _scheduler.ScheduleJob(job, trigger);
-            _scheduler.TriggerJob(jobKey);
+            if(explicitTriggerNow)
+                _scheduler.TriggerJob(jobKey);
         }
 
 
