@@ -79,8 +79,9 @@ You should configure a ```config.json``` in the same folders as ```Bilgi.Sis.BbM
 | Property | Description | Mandatory |
 | ---      | ---         | ---       |
 | DryRun | Do not uplaod files to Blackboard but run the full cycle | NO |
+| UploadTimeoutInSecs | HTTP client timeout for data file upload. **Default** is **180 seconds**. **Minimum** value can be **100 seconds**  | NO |
+| DownloadTimeoutInSecs | HTTP client timeout for status file download. **Default** is **180 seconds**. **Minimum** value can be **100 seconds**   | NO |
 | DataIntervalInSeconds | How often will data job trigger. Default is 1 hour (3600 seconds) | YES |
-| DataCronExp | Cron expression for the data process and upload trigger. Overrides **DataIntervalInSeconds** | NO | 
 | DataJobEnabled | If 'true' data job will be triggered every DataIntervalInSeconds, if 'false' data job will not be triggered | YES|
 | DataRootPath | Full path of the root snapshot flat file folder | YES |
 | QueueFolderName | Queued files folder name relative to **DataRootPath** | YES |
@@ -94,7 +95,6 @@ You should configure a ```config.json``` in the same folders as ```Bilgi.Sis.BbM
 | EndpointUrl | Blackboard snaposhot flat file upload endpoint root url. Enpoint url is concatanated to this value if enpoint url does not start with **http** or **https**| NO |
 | DataSetStatusJobEnabled | If 'true' data set status job is enabled. Data set status will be queried based on reference id values found in log files| YES |
 | DataSetStatusQueryIntervalInSeconds| How often will data set status job trigger. Default is 1.5 hours (5400 seconds)  | YES |
-| DataSetStatusCronExp | Cron expression for the data set status check trigger. Overrides **DataSetStatusQueryIntervalInSeconds** | NO | 
 | DataSetStatusMaxFilesToProcess | Maximum number of log files to be processed every time data set status job is triggered| YES |
 | DataSetStatusFolderName | The name of the folder where errorneous data transfers will be logged | YES |
 | DataSetStatusEndpointUrl | Data set status query enpoint url | YES |

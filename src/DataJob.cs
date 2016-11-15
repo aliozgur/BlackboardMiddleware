@@ -20,9 +20,10 @@ namespace Bilgi.Sis.BbMiddleware
     [DisallowConcurrentExecution]
     public class DataJob : IJob
     {
+        private volatile int _isRunning;
         private readonly ILog _log = LogManager.GetLogger(typeof(DataJob));
         private DataConfig _config;
-        private volatile int _isRunning;
+
 
         public void Execute(IJobExecutionContext context)
         {
@@ -37,12 +38,47 @@ namespace Bilgi.Sis.BbMiddleware
 
             try
             {
-                DoExecute();
+                
+                if (IsSyncStatusCheckOk())
+                {
+                    DoExecute();
+                }
+                else
+                {
+                    _log.Info("WILL REST | Sync batch has something in progress or check has failed.");
+                }
             }
             finally
             {
                 _isRunning = 0;
             }
+
+        }
+
+
+        private bool IsSyncStatusCheckOk()
+        {
+            return true;
+            //TODO : Add your own sync status check implementation code here
+
+            //if (!_config.SyncStatusCheck)
+            //    return true;
+
+            //try
+            //{
+            //    if (String.IsNullOrWhiteSpace(_config.Target))
+            //    {
+            //        _log.Error("ERROR : Sync batch status check target is null or empty in config file. Will halt processing for this turn.");
+            //        return false;
+            //    }
+
+            //    return !BilgiSisDbContext.HasDataInProgress(_config.Target);
+            //}
+            //catch (Exception ex)
+            //{
+            //    _log.Error("ERROR: Can not check Sync batch status. Will halt processing for this turn.", ex);
+            //    return false;
+            //}
         }
 
         private bool LoadConfig(IJobExecutionContext context)
@@ -124,7 +160,7 @@ namespace Bilgi.Sis.BbMiddleware
             }
             catch (Exception ex)
             {
-                _log.Fatal($"Can not move files to in process folder.",ex);
+                _log.Fatal($"Can not move files to in process folder.", ex);
                 return false;
             }
 
@@ -202,8 +238,8 @@ namespace Bilgi.Sis.BbMiddleware
                 try
                 {
                     _log.Info($"PROCESS FILE {dataFile.Endpoint.Name}: {dataFile.FilePath}");
-                    var uploadResult = _config.DryRun 
-                        ? DryRunUpload (dataFile) 
+                    var uploadResult = _config.DryRun
+                        ? DryRunUpload(dataFile)
                         : UploadFile(dataFile);
 
                     if (uploadResult.StatusCode != HttpStatusCode.OK)
@@ -228,7 +264,11 @@ namespace Bilgi.Sis.BbMiddleware
 
             using (var client = new HttpClient())
             {
-
+                var timeoutSecs = dataFile.Endpoint.DataConfig.UploadTimeoutInSecs??0;
+                if (timeoutSecs > 100)
+                {
+                    client.Timeout =  TimeSpan.FromSeconds(timeoutSecs);
+                }
 
                 var username = dataFile.Endpoint.Username;
                 var password = dataFile.Endpoint.Password;

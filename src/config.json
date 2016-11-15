@@ -1,5 +1,7 @@
 ﻿{
   "DataRootPath": "C:\\BbData",
+  "UploadTimeoutInSecs": 300, // 5 minutes, default is 3 minutes
+  "DownloadTimeoutInSecs": 120, // 2 minutes, default is 2 minutes
   "QueueFolderName": "Queue",
   "ProcessedFolderName": "Processed",
   "ProcessedBackupEnabled": true,

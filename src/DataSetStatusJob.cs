@@ -18,23 +18,20 @@ namespace Bilgi.Sis.BbMiddleware
     [DisallowConcurrentExecution]
     public class DataSetStatusJob : IJob
     {
+        private volatile int _isRunning;
         private readonly ILog _log = LogManager.GetLogger(typeof(DataSetStatusJob));
         private DataConfig _config;
         private int _maxFilesToProcess = 5;
-        private volatile int _isRunning;
-
 
         public void Execute(IJobExecutionContext context)
         {
             if (!LoadConfig(context))
                 return;
-
             if (Interlocked.Exchange(ref _isRunning, 1) == 1)
             {
-                _log.Info("[DATASET STATUS CHECK] SOMEONE ELSE IS IN! I'm just leaving the data status check...");
+                _log.Info("[DATASET STATUS CHECK] SOMEONE ELSE IS IN! I'm just leaving the data set status check...");
                 return;
             }
-
             try
             {
                 DoExecute();
@@ -43,7 +40,6 @@ namespace Bilgi.Sis.BbMiddleware
             {
                 _isRunning = 0;
             }
-
         }
 
         private bool LoadConfig(IJobExecutionContext context)
@@ -154,6 +150,11 @@ namespace Bilgi.Sis.BbMiddleware
 
             using (var client = new HttpClient())
             {
+                var timeoutSecs = dataFile.Endpoint.DataConfig.DownloadTimeoutInSecs ?? 0;
+                if (timeoutSecs > 100)
+                {
+                    client.Timeout = TimeSpan.FromSeconds(timeoutSecs);
+                }
 
                 var username = dataFile.Endpoint.Username;
                 var password = dataFile.Endpoint.Password;

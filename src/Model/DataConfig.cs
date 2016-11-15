@@ -11,15 +11,16 @@ namespace Bilgi.Sis.BbMiddleware.Model
     public class DataConfig : DataConfigBase
     {
         public const string InProcessFolderName = "InProcess";
-
         public bool DryRun { get; set; } = false;
-
+        public int? UploadTimeoutInSecs { get; set; } = 180; // 3 minutes
+        public int? DownloadTimeoutInSecs { get; set; } = 120; // 2 minutes
+        public bool SyncStatusCheck { get; set; } = true;
+        public string Target { get; set; } = "BB";
         public string DataRootPath { get; set; }
         public string FilePartsSeperator { get; set; } = "_";
         public string EndpointUrl { get; set; }
         public int DataIntervalInSeconds { get; set; } = 60*60;
         public string DataCronExp { get; set; }
-
         public bool DataJobEnabled { get; set; } = true;
         public string DataSetStatusEndpointUrl { get; set; }
         public int DataSetStatusQueryIntervalInSeconds { get; set; } = 90*60;
@@ -27,11 +28,8 @@ namespace Bilgi.Sis.BbMiddleware.Model
         public bool DataSetStatusJobEnabled { get; set; } = false;
         public int DataSetStatusMaxFilesToProcess { get; set; } = 5;
         public string DataSetStatusFolderName { get; set; } = "Status";
-
         public bool DataSetStatusKeepNotOkResponses { get; set; } = true;
-
         public bool UploadBinary { get; set; } = false;
-
         public List<Endpoint> Endpoints { get; set; }
 
         [JsonIgnore]
