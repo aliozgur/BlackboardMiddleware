@@ -31,7 +31,7 @@ You can run this tool as a console application or install the tool as a Windows 
 
 # File Naming and Ordering
 Your generated snapshot flat files should follow this convention
-```<BatchId><BatchSeperator><FileName>```
+```{BatchId}{BatchSeperator}{FileName}```
 
 **BatchId**: BatchId is intended for grouping batch of snapshot flat files. The tool will always group files based on this value and process one batch at a time.
 BatchId should be an incremental value which can be sorted. For example integer values like 1,2,3 are good candidate, you can also use a sequence generator.
