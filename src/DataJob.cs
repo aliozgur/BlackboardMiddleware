@@ -183,8 +183,8 @@ namespace Bilgi.Sis.BbMiddleware
                 .GetFiles()
                 .Where(
                     fi =>
-                        fi.Name.Split(new string[1] { partsSeperator }, StringSplitOptions.RemoveEmptyEntries).Length == 2
-                        && _config.Endpoints.Any(ep => fi.Name.ToLowerInvariant().EndsWith($"{partsSeperator}{ep.FileName.ToLowerInvariant()}")))
+                        //fi.Name.Split(new string[1] { partsSeperator }, StringSplitOptions.RemoveEmptyEntries).Length == 2 && 
+                        _config.Endpoints.Any(ep => fi.Name.ToLowerInvariant().EndsWith($"{partsSeperator}{ep.FileName.ToLowerInvariant()}")))
                 .OrderBy(fi => fi.Name).FirstOrDefault();
 
             if (firstFile == null)
