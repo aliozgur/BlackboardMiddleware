@@ -1,3 +1,6 @@
+# Travic CI Build Status
+[![Build Status](https://travis-ci.org/aliozgur/BlackboardMiddleware.svg?branch=master)](https://travis-ci.org/aliozgur/BlackboardMiddleware)
+
 # Blackboard Learn Flat File Upload Middleware
 This tool is intended to automate the upload of  [snapshot flat files](https://en-us.help.blackboard.com/Learn/Administrator/Hosting/System_Integration/SIS/SIS_Integration_Types/010_Snapshot_Flat_File) 
 to Blackboard.
@@ -130,7 +133,7 @@ You should configure a ```config.json``` in the same folders as ```Bilgi.Sis.BbM
   "FilePartsSeperator": "_", // Default is _ (underscore)
   "Username": "",
   "Password": "password",
-  "DataIntervalInSeconds": 10, // Default is 1 hour
+  "DataIntervalInSeconds": 10, //Default is 1 hour
   "DataJobEnabled": true, // Default is true
   "EndpointUrl": "https://xyx.com/webapps/bb-data-integration-flatfile-BBLEARN/endpoint",
   "DataSetStatusMaxFilesToProcess": 5, // Default is 5
